@@ -4,6 +4,12 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var session = require('express-session')
+var passport = require('passport')
+var mongoose = require('mongoose')
+require('dotenv').config();
+mongoose.connect( process.env.DB_URI)
+require('./config/passport.js')(passport)
 
 var index = require('./routes/index');
 var users = require('./routes/users');
@@ -13,6 +19,15 @@ var app = express();
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
+
+app.use(express.static( path.join(__dirname + '/public')))
+app.use(session({
+  secret: 'secretDemiacle',
+  resave: false,
+  saveUninitialized: true
+}))
+app.use(passport.initialize())
+app.use(passport.session())
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
@@ -42,5 +57,9 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
+app.listen( 8080, function() {
+  console.log('Listening on port 8080')
+})
 
 module.exports = app;

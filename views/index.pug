@@ -1,5 +1,30 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+  nav
+    ul
+      li
+        a(href="/auth/twitter")
+          img(src="/images/sign-in-with-twitter-link.png")
+  h1 Find your people!
+  p  see whats happenin' tonight!
+  form(method="POST" onsubmit="submitForm(event, this)")
+    input(type="text" placeholder="Destination" id="query")
+    input(type="submit" name="search" value="search")
+  script.
+    function submitForm(e, form){
+      e.preventDefault();
+      //display loading sign
+      fetch( '#{SITE_URL}search/' + document.getElementById("query").value, {
+        method: 'get',
+      }).then(function(response) {
+        return response.json();
+      }).then(function(data) {
+        console.log(data)
+        // parse data
+        // remove loading sign
+      }).catch(function(err) {
+        alert('Error requesting yelp api')
+      });
+    }
+
