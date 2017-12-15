@@ -1,9 +1,11 @@
 extends layout
 
 block content
-  if isLoggedIn 
+  if isLoggedIn
     p
-      | Logged in as: $someLogin
+      | Logged in as: #{userName}
+      a(href="/logout").logout
+        | logout
   else
     a(href="/auth/twitter")#twitter
       img(src="/images/sign-in-with-twitter-link.png")

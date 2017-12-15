@@ -135,6 +135,15 @@ img {
   left: -94px;
   top: 54px;
 }
+.logout {
+  border-radius: 24px;
+  background-color: white;
+  border: none;
+  padding: 5px 24px;
+  vertical-align: top;
+  margin-left: 10px;
+  text-decoration: none;
+}
 /* LOADING ICON*/
 #loadingIcon, #loadingIcon2 {
   width: 50px;
