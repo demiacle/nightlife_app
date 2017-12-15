@@ -21,15 +21,21 @@ block content
   ul#barList
     
   script.
+    var previousResults = JSON.parse( localStorage.getItem('results') )
+    if( previousResults ){
+      buildResponseList( previousResults )
+    }
+
     function buildResponseList(data){
+      localStorage.setItem('results', JSON.stringify( data ) )
       var barList = document.getElementById('barList');
-      var list = data.search.business.map( (item) => {
+      var list = data.map( (item) => {
         var html = `<li style="background-image: url(${item.photos[0]})">
         <div class="name">${item.name}</div>
         <div class="location">${item.location.formatted_address}</div>
         <div class="url"><a href="${item.url}">More info...</a></div>
         <br>
-        <div class="review">${item.reviews[0].text}</div>
+        <div class="review">${item.reviews.text}</div>
         <br>
         <div class="rsvp"><a href=""># GOING</a></div>
         </li>`;
@@ -47,10 +53,8 @@ block content
         return response.json();
       }).then(function(data) {
         document.getElementById("loadingIcon").style.display = "none";
-        console.log(data)
         buildResponseList(data);
       }).catch(function(err) {
         console.log(err)
       });
     }
-

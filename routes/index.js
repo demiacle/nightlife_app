@@ -3,6 +3,7 @@ var router = express.Router();
 var fetch = require('node-fetch')
 var passport = require('passport');
 var graphql = require('graphql-request')
+var mongoose = require('mongoose')
 
 function isLoggedIn(req, res, next){
   if( req.user ){
@@ -13,6 +14,13 @@ function isLoggedIn(req, res, next){
   next();
 }
 
+function requireLoggedIn(req, res, next){
+  if( req.user ){
+    next();
+  }
+  res.redirect('/')
+}
+
 function setRenderVars(req, res, next){
   res.locals.renderVars = {
     SITE_URL: process.env.SITE_URL, 
@@ -20,10 +28,15 @@ function setRenderVars(req, res, next){
   next();
 }
 
-router.get('/', setRenderVars, isLoggedIn, function(req, res, next) {
-  console.log( res.locals.renderVars )
+router.get('/', setRenderVars, isLoggedIn, function(req, res) {
+  //console.log( res.locals.renderVars )
   res.render('index', res.locals.renderVars );
 });
+
+// Add user going to bar
+router.get('/attend', requireLoggedIn, function(req, res){
+  // add to db and if fail revert going
+})
 
 // Twitter OAuth
 router.get('/auth/twitter', passport.authenticate('twitter'));
@@ -47,10 +60,9 @@ router.get('/search/:query', function(req, res ){
     }
   )
   var query = `{
-    search(location: "${req.params.query}", categories: "bars") {
+    search(location: "${req.params.query}", categories: "bars", limit: 10) {
       business{
         name
-        id
         url
         location {
           formatted_address
@@ -64,8 +76,13 @@ router.get('/search/:query', function(req, res ){
   }`
   //console.log(query)
   client.request(query).then( data =>{ 
-      //console.log(data) 
-      res.json(data)
-    }).catch(err => console.log(err))
+    // Remove unused text
+    var response = data.search.business.map((i)=>{
+      i.reviews = i.reviews[0];
+      return i;
+    })
+    // query goingto database
+    res.json(response)
+  }).catch(err => console.log(err))
 })
 module.exports = router;
