@@ -1,30 +1,54 @@
 extends layout
 
 block content
-  nav
-    ul
-      li
-        a(href="/auth/twitter")
-          img(src="/images/sign-in-with-twitter-link.png")
+  if isLoggedIn 
+    p
+      | Logged in as: $someLogin
+  else
+    a(href="/auth/twitter")#twitter
+      img(src="/images/sign-in-with-twitter-link.png")
   h1 Find your people!
   p  see whats happenin' tonight!
   form(method="POST" onsubmit="submitForm(event, this)")
-    input(type="text" placeholder="Destination" id="query")
+    input(type="text" placeholder="Destination" id="query" required)
     input(type="submit" name="search" value="search")
+
+  #loadingIcon
+    div
+    div.bottomRight
+  ul#barList
+    
   script.
+    function buildResponseList(data){
+      var barList = document.getElementById('barList');
+      var list = data.search.business.map( (item) => {
+        var html = `<li style="background-image: url(${item.photos[0]})">
+        <div class="name">${item.name}</div>
+        <div class="location">${item.location.formatted_address}</div>
+        <div class="url"><a href="${item.url}">More info...</a></div>
+        <br>
+        <div class="review">${item.reviews[0].text}</div>
+        <br>
+        <div class="rsvp"><a href=""># GOING</a></div>
+        </li>`;
+        return html;
+      })
+      barList.innerHTML = list.join("");
+    }
+
     function submitForm(e, form){
       e.preventDefault();
-      //display loading sign
+      document.getElementById("loadingIcon").style.display = "block";
       fetch( '#{SITE_URL}search/' + document.getElementById("query").value, {
         method: 'get',
       }).then(function(response) {
         return response.json();
       }).then(function(data) {
+        document.getElementById("loadingIcon").style.display = "none";
         console.log(data)
-        // parse data
-        // remove loading sign
+        buildResponseList(data);
       }).catch(function(err) {
-        alert('Error requesting yelp api')
+        console.log(err)
       });
     }
 
