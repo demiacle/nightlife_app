@@ -10,7 +10,7 @@ block content
     a(href="/auth/twitter")#twitter
       img(src="/images/sign-in-with-twitter-link.png")
   h1 Find your people!
-  p  see whats happenin' tonight!
+  p  See whats happenin' tonight! &middot; Login to RSVP
   form(method="POST" onsubmit="submitForm(event, this)")
     input(type="text" placeholder="Destination" id="query" required)
     input(type="submit" name="search" value="search")
@@ -21,15 +21,16 @@ block content
   ul#barList
     
   script.
-    var previousResults = JSON.parse( localStorage.getItem('results') )
-    if( previousResults ){
-      buildResponseList( previousResults )
+    var prevQuery = localStorage.getItem('prevQuery')
+    if( prevQuery ){
+      querySearch( prevQuery )
     }
 
     function buildResponseList(data){
       localStorage.setItem('results', JSON.stringify( data ) )
       var barList = document.getElementById('barList');
       var list = data.map( (item) => {
+        console.log(item)
         var html = `<li style="background-image: url(${item.photos[0]})">
         <div class="name">${item.name}</div>
         <div class="location">${item.location.formatted_address}</div>
@@ -37,17 +38,61 @@ block content
         <br>
         <div class="review">${item.reviews.text}</div>
         <br>
-        <div class="rsvp"><a href=""># GOING</a></div>
+        <div class="rsvp">
+          <button class='${ '#{isLoggedIn}' ? 'enableButton' : ''}' onclick="toggleGoing('${item.id}')">
+            <span id='${item.id}'>${item.peopleGoing}</span> GOING
+          </button>
+        </div>
         </li>`;
         return html;
       })
       barList.innerHTML = list.join("");
     }
 
+    function toggleGoing(id){
+      if( "#{isLoggedIn}" == false ){
+        return;
+      }
+      var url = "/attend/" + id
+      fetch(
+        url,
+        {
+          method: 'post',
+          credentials: 'include',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          }
+        }
+      )
+      .then( function(res) {
+        //console.log(res)
+        return res.json()
+      })
+      .then( function(data){
+        console.log(data);
+        if( data.error ){
+          alert('An error occurred')
+          return;
+        } else {
+          updatedGoing = parseInt( document.getElementById( data.id ).innerHTML  ) + data.peopleGoing;
+          document.getElementById( data.id ).innerHTML =  updatedGoing;
+        }
+      })
+      .catch( function(err) {
+        console.log(err)
+    })}
+
     function submitForm(e, form){
       e.preventDefault();
+      var query = document.getElementById("query").value;
+      querySearch(query)
+    }
+    
+    function querySearch(query){
+      localStorage.setItem('prevQuery', query )
       document.getElementById("loadingIcon").style.display = "block";
-      fetch( '#{SITE_URL}search/' + document.getElementById("query").value, {
+      fetch( '#{SITE_URL}search/' + query, {
         method: 'get',
       }).then(function(response) {
         return response.json();

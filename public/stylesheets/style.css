@@ -24,6 +24,22 @@ h1 {
   text-shadow: 0px 0 3px white;
   font-size: 27pt;
 }
+button {
+  border-radius: 10px;
+  border-style: none;
+  background-color: white;
+  padding: 10px;
+}
+.enableButton {
+  cursor: pointer;
+}
+.enableButton:hover {
+  background-color: #f0b0af;
+}
+.enableButton:active {
+  position: relative;
+  top: 1px;
+}
 input#query {
   width: 40%;
   border-radius: 20px 0 0 20px;
@@ -128,12 +144,10 @@ img {
   font-weight: 600;
 }
 .rsvp {
-  position: absolute;
-  padding: 13px;
-  background-color: white;
-  border-radius: 10px;
-  left: -94px;
-  top: 54px;
+    position: absolute;
+    left: 15px;
+    top: 63px;
+    border-radius: 10px;
 }
 .logout {
   border-radius: 24px;
@@ -143,6 +157,9 @@ img {
   vertical-align: top;
   margin-left: 10px;
   text-decoration: none;
+}
+.enableButton {
+
 }
 /* LOADING ICON*/
 #loadingIcon, #loadingIcon2 {
